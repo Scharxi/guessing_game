@@ -18,12 +18,12 @@ fn print_info() {
     );
 }
 
-fn check_diffeculty(input: String) -> Result<Diffeculty, ()> {
+fn check_diffeculty(input: String) -> Result<Diffeculty, String> {
     match input.to_lowercase().as_str() {
         "1" => Ok(Diffeculty::Easy),
         "2" => Ok(Diffeculty::Medium),
         "3" => Ok(Diffeculty::Hard),
-        _ => Err(()),
+        _ => Err(input),
     }
 }
 
@@ -49,9 +49,23 @@ fn main() -> Result<(), ()> {
         let mut input = String::new();
         stdin().read_line(&mut input).expect("Failed to read line");
 
-        let input: u32 = input.trim().parse().expect("This is not a number!");
+        // let input: u32 = input.trim().parse().expect("This is not a number!");
 
-        let diffeculty: Diffeculty = check_diffeculty(input.to_string())?;
+        let input: u32 = match input.trim().parse() {
+            Ok(num) => num,
+            Err(_) => {
+                println!("This is not a number!");
+                continue;
+            }
+        };
+
+        let diffeculty: Diffeculty = match check_diffeculty(input.to_string()) {
+            Ok(diff) => diff, 
+            Err(input) => {
+                println!("{} is not a valid option\nPlease choose 1,2 or 3", input);
+                continue;
+            }
+        };
 
         set_tries(diffeculty, &mut max_tries);
         break;
