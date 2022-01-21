@@ -1,17 +1,21 @@
-use std::io::stdin;
+use rand::Rng;
 use std::cmp::Ordering;
-use rand::{Rng};
+use std::io::stdin;
 use std::result::Result;
 
 enum Diffeculty {
-    Easy, Medium, Hard
+    Easy,
+    Medium,
+    Hard,
 }
 
 fn print_info() {
-    println!("Choose your diffeculty: \n
+    println!(
+        "Choose your diffeculty: \n
     1. Easy\n
     2. Medium\n
-    3. Hard");
+    3. Hard"
+    );
 }
 
 fn check_diffeculty(input: String) -> Result<Diffeculty, ()> {
@@ -19,7 +23,7 @@ fn check_diffeculty(input: String) -> Result<Diffeculty, ()> {
         "1" => Ok(Diffeculty::Easy),
         "2" => Ok(Diffeculty::Medium),
         "3" => Ok(Diffeculty::Hard),
-        _ => Err(())
+        _ => Err(()),
     }
 }
 
@@ -27,48 +31,55 @@ fn set_tries(diffeculty: Diffeculty, tries: &mut u32) {
     match diffeculty {
         Diffeculty::Easy => *tries = 15u32,
         Diffeculty::Medium => *tries = 10u32,
-        Diffeculty::Hard => *tries = 5u32
+        Diffeculty::Hard => *tries = 5u32,
     };
 }
 
-fn main() {
+fn main() -> Result<(), ()> {
     println!("Guess the number!");
 
     let secret_number = rand::thread_rng().gen_range(1..101);
     let mut tries: u32 = 0;
-    const MAX_TRIES : u32= 10;
+    let mut max_tries = 10;
 
     print_info();
 
-    
+    loop {
+        // diffeculty
+        let mut input = String::new();
+        stdin().read_line(&mut input).expect("Failed to read line");
+
+        let input: u32 = input.trim().parse().expect("This is not a number!");
+
+        let diffeculty: Diffeculty = check_diffeculty(input.to_string())?;
+
+        set_tries(diffeculty, &mut max_tries);
+        break;
+    }
 
     loop {
         println!("Please input your guess.");
 
         let mut guess = String::new();
 
-        stdin()
-            .read_line(&mut guess)
-            .expect("Failed to read line");
+        stdin().read_line(&mut guess).expect("Failed to read line");
 
         let guess: u32 = match guess.trim().parse() {
             Ok(num) => num,
             Err(_) => continue,
         };
 
-        set_tries(check_diffeculty(guess.to_string()).expect("Not a valid diffeculty"), &mut tries);
-
         println!("Tries: {}", tries);
 
-        tries+=1;
+        tries += 1;
 
-        if tries >= MAX_TRIES {
+        if tries >= max_tries {
             println!("You lost! Out off tries :(");
             break;
         }
 
         println!("You guessed: {}", guess);
-        println!("Tries left: {}", MAX_TRIES - tries);
+        println!("Tries left: {}", max_tries - tries);
 
         match guess.cmp(&secret_number) {
             Ordering::Less => println!("Too small!"),
@@ -79,4 +90,5 @@ fn main() {
             }
         }
     }
+    Ok(())
 }
