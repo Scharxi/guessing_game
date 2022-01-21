@@ -3,18 +3,47 @@ use std::cmp::Ordering;
 use std::io::stdin;
 use std::result::Result;
 
-enum Diffeculty {
-    Easy,
-    Medium,
-    Hard,
+macro_rules! enum_str {
+    (enum $name:ident {
+        $($variant:ident),*,
+    }) => {
+        pub enum $name {
+            $($variant),*
+        }
+
+        impl $name {
+            pub fn name(&self) -> &'static str {
+                match self {
+                    $($name::$variant => stringify!($variant)),*
+                }
+            }
+        }
+    };
+}
+
+
+enum_str! {
+    enum Diffeculty {
+        Easy,
+        Medium,
+        Hard,
+    }
+}
+
+impl Copy for Diffeculty{}
+
+impl Clone for Diffeculty {
+    fn clone(&self) -> Diffeculty {
+        *self
+    }
 }
 
 fn print_info() {
     println!(
         "Choose your diffeculty: \n
-    1. Easy\n
-    2. Medium\n
-    3. Hard"
+        1. Easy\n
+        2. Medium\n
+        3. Hard"
     );
 }
 
@@ -49,8 +78,6 @@ fn main() -> Result<(), ()> {
         let mut input = String::new();
         stdin().read_line(&mut input).expect("Failed to read line");
 
-        // let input: u32 = input.trim().parse().expect("This is not a number!");
-
         let input: u32 = match input.trim().parse() {
             Ok(num) => num,
             Err(_) => {
@@ -60,7 +87,7 @@ fn main() -> Result<(), ()> {
         };
 
         let diffeculty: Diffeculty = match check_diffeculty(input.to_string()) {
-            Ok(diff) => diff, 
+            Ok(diff) => diff,
             Err(input) => {
                 println!("{} is not a valid option\nPlease choose 1,2 or 3", input);
                 continue;
@@ -68,6 +95,9 @@ fn main() -> Result<(), ()> {
         };
 
         set_tries(diffeculty, &mut max_tries);
+
+        println!("You chose {}. You now have {} tries to guess the right number!", diffeculty.name(), max_tries);
+
         break;
     }
 
