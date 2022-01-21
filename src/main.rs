@@ -1,11 +1,12 @@
 mod macros;
+use macros::enum_str;
 
 use rand::Rng;
 use std::cmp::Ordering;
 use std::io::stdin;
 use std::result::Result;
 
-macros::enum_str! {
+enum_str! {
     enum Diffeculty {
         Easy,
         Medium,
